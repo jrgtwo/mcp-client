@@ -10,6 +10,9 @@ export const rootRoute = createRootRoute({
         <Link to="/weather" activeProps={{ style: { fontWeight: 'bold' } }}>
           Weather
         </Link>
+        <Link to="/agent" activeProps={{ style: { fontWeight: 'bold' } }}>
+          Agent
+        </Link>
         <Link to="/about" activeProps={{ style: { fontWeight: 'bold' } }}>
           About
         </Link>
