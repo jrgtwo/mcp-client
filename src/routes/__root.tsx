@@ -13,6 +13,9 @@ export const rootRoute = createRootRoute({
         <Link to="/agent" activeProps={{ style: { fontWeight: 'bold' } }}>
           Agent
         </Link>
+        <Link to="/agent-chat" activeProps={{ style: { fontWeight: 'bold' } }}>
+          Agent Chat
+        </Link>
         <Link to="/about" activeProps={{ style: { fontWeight: 'bold' } }}>
           About
         </Link>
