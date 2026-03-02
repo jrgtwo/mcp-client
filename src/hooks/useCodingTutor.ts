@@ -16,10 +16,10 @@ function extractResult(results: unknown[]): string {
   return '(no response)'
 }
 
-export function useAgentChat() {
+export function useCodingTutor() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
-  const [maxSteps, setMaxSteps] = useState(10)
+  const [maxSteps, setMaxSteps] = useState(8)
   const [maxNewTokens, setMaxNewTokens] = useState(1024)
   const [maxHistoryPairs, setMaxHistoryPairs] = useState(4)
   const [summaryStrategy, setSummaryStrategy] = useState<'deterministic' | 'llm'>('deterministic')
@@ -52,17 +52,17 @@ export function useAgentChat() {
 
     try {
       const history = messages
-      const goal = history.length === 0
+      const question = history.length === 0
         ? text
         : [
             'Conversation so far:',
-            ...history.map(m => `${m.role === 'user' ? 'User' : 'Agent'}: ${m.content}`),
+            ...history.map(m => `${m.role === 'user' ? 'User' : 'Tutor'}: ${m.content}`),
             '',
-            `Current goal: ${text}`,
+            `Current question: ${text}`,
           ].join('\n')
 
-      const results = await mcpRef.current.callTool('run_agent', {
-        goal,
+      const results = await mcpRef.current.callTool('coding_tutor', {
+        question,
         max_steps: maxSteps,
         max_new_tokens: maxNewTokens,
         max_history_pairs: maxHistoryPairs,
@@ -78,8 +78,8 @@ export function useAgentChat() {
     }
   }
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === 'Enter' && e.ctrlKey) {
       e.preventDefault()
       void send()
     }

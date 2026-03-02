@@ -6,8 +6,9 @@ import { chatRoute } from './routes/chat'
 import { weatherRoute } from './routes/weather'
 import { agentRoute } from './routes/agent'
 import { agentChatRoute } from './routes/agent-chat'
+import { codingTutorRoute } from './routes/coding-tutor'
 
-const routeTree = rootRoute.addChildren([indexRoute, aboutRoute, chatRoute, weatherRoute, agentRoute, agentChatRoute])
+const routeTree = rootRoute.addChildren([indexRoute, aboutRoute, chatRoute, weatherRoute, agentRoute, agentChatRoute, codingTutorRoute])
 
 export const router = createRouter({ routeTree })
 

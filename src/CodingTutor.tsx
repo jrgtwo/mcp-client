@@ -1,11 +1,11 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { useAgentChat } from './hooks/useAgentChat'
+import { useCodingTutor } from './hooks/useCodingTutor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
-export default function AgentChat() {
+export default function CodingTutor() {
   const {
     messages, input, setInput,
     maxSteps, setMaxSteps,
@@ -13,7 +13,7 @@ export default function AgentChat() {
     maxHistoryPairs, setMaxHistoryPairs,
     summaryStrategy, setSummaryStrategy,
     loading, send, handleKeyDown, bottomRef,
-  } = useAgentChat()
+  } = useCodingTutor()
 
   return (
     <div className="flex flex-col h-[calc(100vh-105px)]">
@@ -21,7 +21,7 @@ export default function AgentChat() {
         <div className="flex flex-col gap-2">
           {messages.length === 0 && (
             <p className="text-muted-foreground text-center mt-8">
-              Ask the agent anything — it can look up weather, news, URLs, and more.
+              Ask a coding question or paste code to explain/review...
             </p>
           )}
           {messages.map((msg, i) => (
@@ -68,7 +68,7 @@ export default function AgentChat() {
           {loading && (
             <div className="flex justify-start">
               <div className="px-3 py-2 rounded-xl bg-muted text-muted-foreground text-sm">
-                Agent is thinking...
+                Tutor is thinking...
               </div>
             </div>
           )}
@@ -77,14 +77,15 @@ export default function AgentChat() {
       </ScrollArea>
 
       <div className="flex flex-col gap-2 p-3 border-t">
-        <div className="flex gap-2">
-          <Input
+        <div className="flex gap-2 items-end">
+          <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Give the agent a goal (e.g. What should I wear in Tokyo today?)"
+            placeholder="Ask a coding question or paste code to explain/review... (Ctrl+Enter to send)"
             disabled={loading}
-            className="flex-1"
+            rows={4}
+            className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
           />
           <Button onClick={() => void send()} disabled={loading || !input.trim()}>
             Send
@@ -92,9 +93,9 @@ export default function AgentChat() {
         </div>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <label htmlFor="ac-max-steps">Max steps</label>
+            <label htmlFor="ct-max-steps">Max steps</label>
             <Input
-              id="ac-max-steps"
+              id="ct-max-steps"
               type="number"
               min={1}
               max={20}
@@ -105,9 +106,9 @@ export default function AgentChat() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <label htmlFor="ac-max-new-tokens">Max tokens</label>
+            <label htmlFor="ct-max-new-tokens">Max tokens</label>
             <Input
-              id="ac-max-new-tokens"
+              id="ct-max-new-tokens"
               type="number"
               min={64}
               max={4096}
@@ -119,9 +120,9 @@ export default function AgentChat() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <label htmlFor="ac-max-history-pairs">History pairs</label>
+            <label htmlFor="ct-max-history-pairs">History pairs</label>
             <Input
-              id="ac-max-history-pairs"
+              id="ct-max-history-pairs"
               type="number"
               min={1}
               max={20}
@@ -132,9 +133,9 @@ export default function AgentChat() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <label htmlFor="ac-summary-strategy">Summary</label>
+            <label htmlFor="ct-summary-strategy">Summary</label>
             <select
-              id="ac-summary-strategy"
+              id="ct-summary-strategy"
               value={summaryStrategy}
               onChange={e => setSummaryStrategy(e.target.value as 'deterministic' | 'llm')}
               disabled={loading}

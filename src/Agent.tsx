@@ -5,7 +5,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 export default function Agent() {
-  const { goal, setGoal, maxSteps, setMaxSteps, result, loading, error, runAgent, handleKeyDown } = useAgent()
+  const {
+    goal, setGoal,
+    maxSteps, setMaxSteps,
+    maxNewTokens, setMaxNewTokens,
+    maxHistoryPairs, setMaxHistoryPairs,
+    summaryStrategy, setSummaryStrategy,
+    result, loading, error, runAgent, handleKeyDown,
+  } = useAgent()
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-lg mx-auto">
@@ -25,18 +32,60 @@ export default function Agent() {
         </Button>
       </div>
 
-      <div className="flex items-center gap-3 text-sm text-muted-foreground">
-        <label htmlFor="max-steps">Max steps</label>
-        <Input
-          id="max-steps"
-          type="number"
-          min={1}
-          max={20}
-          value={maxSteps}
-          onChange={e => setMaxSteps(Number(e.target.value))}
-          disabled={loading}
-          className="w-20"
-        />
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <label htmlFor="max-steps">Max steps</label>
+          <Input
+            id="max-steps"
+            type="number"
+            min={1}
+            max={20}
+            value={maxSteps}
+            onChange={e => setMaxSteps(Number(e.target.value))}
+            disabled={loading}
+            className="w-20"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <label htmlFor="max-new-tokens">Max tokens</label>
+          <Input
+            id="max-new-tokens"
+            type="number"
+            min={64}
+            max={4096}
+            step={64}
+            value={maxNewTokens}
+            onChange={e => setMaxNewTokens(Number(e.target.value))}
+            disabled={loading}
+            className="w-24"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <label htmlFor="max-history-pairs">History pairs</label>
+          <Input
+            id="max-history-pairs"
+            type="number"
+            min={1}
+            max={20}
+            value={maxHistoryPairs}
+            onChange={e => setMaxHistoryPairs(Number(e.target.value))}
+            disabled={loading}
+            className="w-20"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <label htmlFor="summary-strategy">Summary</label>
+          <select
+            id="summary-strategy"
+            value={summaryStrategy}
+            onChange={e => setSummaryStrategy(e.target.value as 'deterministic' | 'llm')}
+            disabled={loading}
+            className="rounded-md border border-input bg-background px-2 py-1 text-sm"
+          >
+            <option value="deterministic">Deterministic</option>
+            <option value="llm">LLM</option>
+          </select>
+        </div>
       </div>
 
       {loading && (
