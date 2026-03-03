@@ -1,5 +1,7 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useCodingTutor } from './hooks/useCodingTutor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -47,10 +49,22 @@ export default function CodingTutor() {
                       ul: ({ children }) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
                       ol: ({ children }) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
                       li: ({ children }) => <li className="mb-0.5">{children}</li>,
-                      pre: ({ children }) => <pre className="bg-black/20 rounded p-2 text-xs font-mono overflow-x-auto mb-2 whitespace-pre">{children}</pre>,
-                      code: ({ className, children }) => className
-                        ? <code className={className}>{children}</code>
-                        : <code className="bg-black/20 rounded px-1 py-0.5 text-xs font-mono">{children}</code>,
+                      pre: ({ children }) => <>{children}</>,
+                      code: ({ className, children }) => {
+                        const match = /language-(\w+)/.exec(className ?? '')
+                        return match ? (
+                          <SyntaxHighlighter
+                            style={vscDarkPlus}
+                            language={match[1]}
+                            PreTag="div"
+                            customStyle={{ borderRadius: '0.375rem', fontSize: '0.75rem', marginBottom: '0.5rem' }}
+                          >
+                            {String(children).replace(/\n$/, '')}
+                          </SyntaxHighlighter>
+                        ) : (
+                          <code className="bg-black/20 rounded px-1 py-0.5 text-xs font-mono">{children}</code>
+                        )
+                      },
                       blockquote: ({ children }) => <blockquote className="border-l-2 border-current pl-3 opacity-75 mb-2">{children}</blockquote>,
                       a: ({ href, children }) => <a href={href} className="underline" target="_blank" rel="noopener noreferrer">{children}</a>,
                       hr: () => <hr className="border-current opacity-25 my-2" />,
