@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { connectMCP } from '../mcpConnect'
+import { useMcpClient } from '../McpContext'
 
 export type Message = { role: 'user' | 'assistant'; content: string }
 
@@ -14,21 +14,11 @@ function extractReply(results: unknown[]): string {
 }
 
 export function useChat() {
+  const { client, nextId } = useMcpClient()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const mcpRef = useRef<Awaited<ReturnType<typeof connectMCP>> | null>(null)
-  const idRef = useRef(2)
   const bottomRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    let mcp: Awaited<ReturnType<typeof connectMCP>> | null = null
-    connectMCP().then(client => {
-      mcp = client
-      mcpRef.current = client
-    })
-    return () => { mcp?.disconnect() }
-  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -36,7 +26,7 @@ export function useChat() {
 
   async function send() {
     const text = input.trim()
-    if (!text || loading || !mcpRef.current) return
+    if (!text || loading || !client) return
 
     const userMsg: Message = { role: 'user', content: text }
     setMessages(prev => [...prev, userMsg])
@@ -44,9 +34,9 @@ export function useChat() {
     setLoading(true)
 
     const history = [...messages, userMsg]
-    const results = await mcpRef.current.callTool('chat', {
+    const results = await client.callTool('chat', {
       messages: [SYSTEM_MESSAGE, ...history],
-    }, idRef.current++)
+    }, nextId())
 
     const reply = extractReply(results)
     setMessages(prev => [...prev, { role: 'assistant', content: reply }])

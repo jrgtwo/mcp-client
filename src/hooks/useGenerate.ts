@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { connectMCP } from '../mcpConnect'
+import { useState } from 'react'
+import { useMcpClient } from '../McpContext'
 
 function extractText(results: unknown[]): string {
   for (const r of results) {
@@ -15,37 +15,27 @@ function extractText(results: unknown[]): string {
 }
 
 export function useGenerate() {
+  const { client, nextId } = useMcpClient()
   const [prompt, setPrompt] = useState('')
   const [maxNewTokens, setMaxNewTokens] = useState(512)
   const [temperature, setTemperature] = useState(0.7)
   const [result, setResult] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const mcpRef = useRef<Awaited<ReturnType<typeof connectMCP>> | null>(null)
-  const idRef = useRef(2)
-
-  useEffect(() => {
-    let mcp: Awaited<ReturnType<typeof connectMCP>> | null = null
-    connectMCP().then(client => {
-      mcp = client
-      mcpRef.current = client
-    })
-    return () => { mcp?.disconnect() }
-  }, [])
 
   async function generate() {
     const p = prompt.trim()
-    if (!p || loading || !mcpRef.current) return
+    if (!p || loading || !client) return
     setLoading(true)
     setResult(null)
     setError(null)
 
     try {
-      const results = await mcpRef.current.callTool('generate', {
+      const results = await client.callTool('generate', {
         prompt: p,
         max_new_tokens: maxNewTokens,
         temperature,
-      }, idRef.current++)
+      }, nextId())
       setResult(extractText(results))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unknown error')

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { connectMCP } from '../mcpConnect'
+import { useMcpClient } from '../McpContext'
 
 export type Message = { role: 'user' | 'assistant'; content: string }
 
@@ -17,6 +17,7 @@ function extractResult(results: unknown[]): string {
 }
 
 export function useCodingTutor() {
+  const { client, nextId } = useMcpClient()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [maxSteps, setMaxSteps] = useState(8)
@@ -24,18 +25,7 @@ export function useCodingTutor() {
   const [maxHistoryPairs, setMaxHistoryPairs] = useState(4)
   const [summaryStrategy, setSummaryStrategy] = useState<'deterministic' | 'llm'>('deterministic')
   const [loading, setLoading] = useState(false)
-  const mcpRef = useRef<Awaited<ReturnType<typeof connectMCP>> | null>(null)
-  const idRef = useRef(2)
   const bottomRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    let mcp: Awaited<ReturnType<typeof connectMCP>> | null = null
-    connectMCP().then(client => {
-      mcp = client
-      mcpRef.current = client
-    })
-    return () => { mcp?.disconnect() }
-  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -43,7 +33,7 @@ export function useCodingTutor() {
 
   async function send() {
     const text = input.trim()
-    if (!text || loading || !mcpRef.current) return
+    if (!text || loading || !client) return
 
     const userMsg: Message = { role: 'user', content: text }
     setMessages(prev => [...prev, userMsg])
@@ -61,13 +51,13 @@ export function useCodingTutor() {
             `Current question: ${text}`,
           ].join('\n')
 
-      const results = await mcpRef.current.callTool('coding_tutor', {
+      const results = await client.callTool('coding_tutor', {
         question,
         max_steps: maxSteps,
         max_new_tokens: maxNewTokens,
         max_history_pairs: maxHistoryPairs,
         summary_strategy: summaryStrategy,
-      }, idRef.current++)
+      }, nextId())
       const reply = extractResult(results)
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
     } catch (e) {

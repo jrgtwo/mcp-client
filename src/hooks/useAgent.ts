@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
-import { connectMCP } from '../mcpConnect'
+import { useState } from 'react'
+import { useMcpClient } from '../McpContext'
 
 const UPLOAD_URL = 'http://localhost:8000/upload'
 
 export function useAgent() {
+  const { client, nextId } = useMcpClient()
   const [goal, setGoal] = useState('')
   const [maxSteps, setMaxSteps] = useState(10)
   const [maxNewTokens, setMaxNewTokens] = useState(1024)
@@ -13,21 +14,10 @@ export function useAgent() {
   const [result, setResult] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const mcpRef = useRef<Awaited<ReturnType<typeof connectMCP>> | null>(null)
-  const idRef = useRef(2)
-
-  useEffect(() => {
-    let mcp: Awaited<ReturnType<typeof connectMCP>> | null = null
-    connectMCP().then(client => {
-      mcp = client
-      mcpRef.current = client
-    })
-    return () => { mcp?.disconnect() }
-  }, [])
 
   async function runAgent() {
     const g = goal.trim()
-    if (!g || loading || !mcpRef.current) return
+    if (!g || loading || !client) return
 
     setLoading(true)
     setResult(null)
@@ -44,14 +34,14 @@ export function useAgent() {
         uploadId = data.upload_id
       }
 
-      const results = await mcpRef.current.callTool('run_agent', {
+      const results = await client.callTool('run_agent', {
         goal: g,
         max_steps: maxSteps,
         max_new_tokens: maxNewTokens,
         max_history_pairs: maxHistoryPairs,
         summary_strategy: summaryStrategy,
         ...(uploadId ? { upload_id: uploadId } : {}),
-      }, idRef.current++)
+      }, nextId())
       setResult(extractResult(results))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unknown error')

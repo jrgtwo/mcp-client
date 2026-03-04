@@ -1,36 +1,26 @@
-import { useEffect, useRef, useState } from 'react'
-import { connectMCP } from '../mcpConnect'
+import { useState } from 'react'
+import { useMcpClient } from '../McpContext'
 
 type Units = 'metric' | 'imperial'
 
 export function useWeather() {
+  const { client, nextId } = useMcpClient()
   const [location, setLocation] = useState('')
   const [units, setUnits] = useState<Units>('metric')
   const [result, setResult] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const mcpRef = useRef<Awaited<ReturnType<typeof connectMCP>> | null>(null)
-  const idRef = useRef(2)
-
-  useEffect(() => {
-    let mcp: Awaited<ReturnType<typeof connectMCP>> | null = null
-    connectMCP().then(client => {
-      mcp = client
-      mcpRef.current = client
-    })
-    return () => { mcp?.disconnect() }
-  }, [])
 
   async function getWeather() {
     const loc = location.trim()
-    if (!loc || loading || !mcpRef.current) return
+    if (!loc || loading || !client) return
 
     setLoading(true)
     setResult(null)
     setError(null)
 
     try {
-      const results = await mcpRef.current.callTool('get_weather', { location: loc, units }, idRef.current++)
+      const results = await client.callTool('get_weather', { location: loc, units }, nextId())
       const text = extractWeather(results)
       setResult(text)
     } catch (e) {
@@ -54,7 +44,6 @@ function extractWeather(results: unknown[]): string {
   for (const r of results) {
     const text = (r as any)?.result?.structuredContent?.result
     if (text) return text
-    // fallback: plain content array
     const content = (r as any)?.result?.content
     if (Array.isArray(content)) {
       const item = content.find((c: any) => c.type === 'text')
