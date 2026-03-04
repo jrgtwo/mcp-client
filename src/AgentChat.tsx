@@ -77,19 +77,42 @@ export default function AgentChat() {
       </ScrollArea>
 
       <div className="flex flex-col gap-2 p-3 border-t">
-        <div className="flex gap-2">
-          <Input
+        <div className="flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={messages.length === 0}
+            onClick={() => {
+              const md = messages
+                .map(m => `**${m.role === 'user' ? 'You' : 'Agent'}**\n\n${m.content}`)
+                .join('\n\n---\n\n')
+              const blob = new Blob([md], { type: 'text/markdown' })
+              const url = URL.createObjectURL(blob)
+              const a = document.createElement('a')
+              a.href = url
+              a.download = `agent-chat-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.md`
+              a.click()
+              URL.revokeObjectURL(url)
+            }}
+          >
+            Save conversation
+          </Button>
+        </div>
+        <div className="flex gap-2 items-end">
+          <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Give the agent a goal (e.g. What should I wear in Tokyo today?)"
             disabled={loading}
-            className="flex-1"
+            rows={3}
+            className="flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           />
           <Button onClick={() => void send()} disabled={loading || !input.trim()}>
             Send
           </Button>
         </div>
+        <p className="text-xs text-muted-foreground">Enter to send · Shift+Enter for new line</p>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <label htmlFor="ac-max-steps">Max steps</label>
