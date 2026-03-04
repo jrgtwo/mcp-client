@@ -12,6 +12,7 @@ export default function AgentChat() {
     maxNewTokens, setMaxNewTokens,
     maxHistoryPairs, setMaxHistoryPairs,
     summaryStrategy, setSummaryStrategy,
+    pdfFile, setPdfFile,
     loading, send, handleKeyDown, bottomRef,
   } = useAgentChat()
 
@@ -108,9 +109,26 @@ export default function AgentChat() {
             rows={3}
             className="flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           />
-          <Button onClick={() => void send()} disabled={loading || !input.trim()}>
-            Send
-          </Button>
+          <div className="flex flex-col gap-1">
+            <Button onClick={() => void send()} disabled={loading || !input.trim()}>
+              Send
+            </Button>
+            <label
+              htmlFor="ac-pdf-upload"
+              title="Attach a PDF to the next message"
+              className={`flex items-center justify-center rounded-md border border-input bg-background px-3 py-1 text-xs font-medium cursor-pointer hover:bg-muted ${loading ? 'opacity-50 pointer-events-none' : ''} ${pdfFile ? 'text-primary border-primary' : 'text-muted-foreground'}`}
+            >
+              {pdfFile ? `PDF: ${pdfFile.name.slice(0, 12)}…` : 'Attach PDF'}
+            </label>
+            <input
+              id="ac-pdf-upload"
+              type="file"
+              accept=".pdf"
+              disabled={loading}
+              className="sr-only"
+              onChange={e => setPdfFile(e.target.files?.[0] ?? null)}
+            />
+          </div>
         </div>
         <p className="text-xs text-muted-foreground">Enter to send · Shift+Enter for new line</p>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">

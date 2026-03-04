@@ -16,6 +16,8 @@ function extractResult(results: unknown[]): string {
   return '(no response)'
 }
 
+const UPLOAD_URL = 'http://localhost:8000/upload'
+
 export function useAgentChat() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -23,6 +25,7 @@ export function useAgentChat() {
   const [maxNewTokens, setMaxNewTokens] = useState(1024)
   const [maxHistoryPairs, setMaxHistoryPairs] = useState(4)
   const [summaryStrategy, setSummaryStrategy] = useState<'deterministic' | 'llm'>('deterministic')
+  const [pdfFile, setPdfFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const mcpRef = useRef<Awaited<ReturnType<typeof connectMCP>> | null>(null)
   const idRef = useRef(2)
@@ -50,7 +53,20 @@ export function useAgentChat() {
     setInput('')
     setLoading(true)
 
+    const attachedPdf = pdfFile
+    setPdfFile(null)
+
     try {
+      let uploadId = ''
+      if (attachedPdf) {
+        const form = new FormData()
+        form.append('file', attachedPdf)
+        const uploadRes = await fetch(UPLOAD_URL, { method: 'POST', body: form })
+        if (!uploadRes.ok) throw new Error(`Upload failed: ${uploadRes.statusText}`)
+        const data = await uploadRes.json() as { upload_id: string }
+        uploadId = data.upload_id
+      }
+
       const history = messages
       const goal = history.length === 0
         ? text
@@ -67,6 +83,7 @@ export function useAgentChat() {
         max_new_tokens: maxNewTokens,
         max_history_pairs: maxHistoryPairs,
         summary_strategy: summaryStrategy,
+        ...(uploadId ? { upload_id: uploadId } : {}),
       }, idRef.current++)
       const reply = extractResult(results)
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
@@ -91,6 +108,7 @@ export function useAgentChat() {
     maxNewTokens, setMaxNewTokens,
     maxHistoryPairs, setMaxHistoryPairs,
     summaryStrategy, setSummaryStrategy,
+    pdfFile, setPdfFile,
     loading, send, handleKeyDown, bottomRef,
   }
 }

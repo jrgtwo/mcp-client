@@ -19,6 +19,15 @@ export const rootRoute = createRootRoute({
         <Link to="/coding-tutor" activeProps={{ style: { fontWeight: 'bold' } }}>
           Tutor
         </Link>
+        <Link to="/generate" activeProps={{ style: { fontWeight: 'bold' } }}>
+          Generate
+        </Link>
+        <Link to="/news" activeProps={{ style: { fontWeight: 'bold' } }}>
+          News
+        </Link>
+        <Link to="/fetch-url" activeProps={{ style: { fontWeight: 'bold' } }}>
+          Fetch URL
+        </Link>
         <Link to="/about" activeProps={{ style: { fontWeight: 'bold' } }}>
           About
         </Link>

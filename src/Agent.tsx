@@ -11,6 +11,7 @@ export default function Agent() {
     maxNewTokens, setMaxNewTokens,
     maxHistoryPairs, setMaxHistoryPairs,
     summaryStrategy, setSummaryStrategy,
+    pdfFile, setPdfFile,
     result, loading, error, runAgent, handleKeyDown,
   } = useAgent()
 
@@ -30,6 +31,27 @@ export default function Agent() {
         <Button onClick={() => void runAgent()} disabled={loading || !goal.trim()}>
           {loading ? '...' : 'Run'}
         </Button>
+      </div>
+
+      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+        <label htmlFor="pdf-upload">PDF (optional)</label>
+        <input
+          id="pdf-upload"
+          type="file"
+          accept=".pdf"
+          disabled={loading}
+          onChange={e => setPdfFile(e.target.files?.[0] ?? null)}
+          className="text-sm file:mr-2 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm file:font-medium file:cursor-pointer disabled:opacity-50"
+        />
+        {pdfFile && (
+          <button
+            onClick={() => setPdfFile(null)}
+            className="text-muted-foreground hover:text-foreground"
+            aria-label="Clear PDF"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
