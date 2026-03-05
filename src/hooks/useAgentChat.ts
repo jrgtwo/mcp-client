@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useMcpClient } from '../McpContext'
+import { UPLOAD_URL } from '../config'
 
 export type Message = { role: 'user' | 'assistant'; content: string }
-
-const UPLOAD_URL = 'http://localhost:8000/upload'
 
 function extractResult(results: unknown[]): string {
   for (const r of results) {

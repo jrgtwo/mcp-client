@@ -9,4 +9,7 @@ export default defineConfig({
   resolve: {
     alias: { '@': path.resolve(__dirname, './src') },
   },
+  server: {
+    host: true, // listen on 0.0.0.0 so other devices on the network can connect
+  },
 })

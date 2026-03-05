@@ -1,4 +1,4 @@
-const MCP_URL = 'http://localhost:8000/mcp'
+import { MCP_URL } from './config'
 
 async function* readSSE(response: Response): AsyncGenerator<unknown> {
   const reader = response.body!.getReader()

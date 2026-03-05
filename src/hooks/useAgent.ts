@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useMcpClient } from '../McpContext'
-
-const UPLOAD_URL = 'http://localhost:8000/upload'
+import { UPLOAD_URL } from '../config'
 
 export function useAgent() {
   const { client, nextId } = useMcpClient()
