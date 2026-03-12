@@ -118,12 +118,12 @@ export default function AgentChat() {
               title="Attach a PDF to the next message"
               className={`flex items-center justify-center rounded-md border border-input bg-background px-3 py-1 text-xs font-medium cursor-pointer hover:bg-muted ${loading ? 'opacity-50 pointer-events-none' : ''} ${pdfFile ? 'text-primary border-primary' : 'text-muted-foreground'}`}
             >
-              {pdfFile ? `PDF: ${pdfFile.name.slice(0, 12)}…` : 'Attach PDF'}
+              {pdfFile ? `File: ${pdfFile.name.slice(0, 12)}…` : 'Attach File'}
             </label>
             <input
               id="ac-pdf-upload"
               type="file"
-              accept=".pdf"
+              accept=".pdf,.md,.markdown"
               disabled={loading}
               className="sr-only"
               onChange={e => setPdfFile(e.target.files?.[0] ?? null)}
